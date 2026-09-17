@@ -4,6 +4,57 @@ Cheat sheet extraído del código de referencia del docente (dominio
 DeliveryGo). Usar como checklist rápido durante el parcial: reemplazar los
 nombres genéricos por las entidades del enunciado, manteniendo el patrón.
 
+## ⚠️ Reglas críticas (el profesor las evalúa con más peso)
+
+El profesor puso el foco explícitamente en **cohesión y acoplamiento**,
+**consistencia e integridad de los datos**, y en el **orden** en que se
+pasan y validan los datos. Estos puntos son los que más rápido bajan la
+nota si se rompen:
+
+1. **Nunca exponer una `@Entity` fuera del Service.** El Controller nunca
+   recibe ni devuelve una Entity; siempre un DTO. Pasar una Entity
+   directamente (al Controller, al `@RequestBody`, o devolverla en un
+   `ResponseEntity`) es el error que el profesor considera **fatal**: acopla
+   el contrato HTTP al modelo de persistencia y rompe la cohesión de capas.
+   - Entity ⇄ DTO se traduce **siempre dentro del Service** (o de un mapper
+     interno del Service), nunca en el Controller ni en el Repository.
+2. **Orden de las operaciones dentro de un método `@Transactional` del
+   Service** (ver `ServicioServices.registrarServicio` / `ProductoServices
+   .createProducto` como referencia):
+   1. Buscar/validar que las dependencias externas existan (ej. el padre de
+      una relación N:1, un CUIT/email que deba ser único).
+   2. Validar las reglas de negocio propias del dato a crear (formato,
+      rangos, obligatoriedad) — en un método **privado** del Service.
+   3. Recién ahí construir la Entity y, si corresponde, asociarla a su
+      padre (`padre.agregarHijo(hijo)` para mantener la relación
+      bidireccional sincronizada en memoria).
+   4. Persistir con el Repository.
+   5. Devolver el DTO (nunca la Entity).
+   - Si se invierte el orden (ej. guardar antes de validar, o asociar la
+     relación antes de confirmar que el padre existe) se rompe la
+     integridad: puede quedar un registro persistido a medias o una
+     relación inconsistente aunque después se lance la excepción.
+3. **Cohesión por capa, responsabilidad única:**
+   - `Entity` → solo representa estado persistente e invariantes mínimas.
+   - `Repository` → solo *finders*, cero lógica de negocio.
+   - `Service` → orquesta el caso de uso completo (buscar, validar,
+     persistir, transaccionar). Es la única capa que conoce tanto Entities
+     como DTOs.
+   - `Controller` → solo traduce HTTP ↔ Service, nunca decide reglas de
+     negocio ni llama a un Repository directo.
+   - Si una capa necesita hacer algo que "no le toca" (ej. el Controller
+     validando un dato, o el Repository con un `if` de negocio), es una
+     señal de acoplamiento indebido.
+4. **Integridad a nivel de base**, no solo de negocio: toda restricción de
+   negocio relevante (unicidad, obligatoriedad, relación obligatoria) debe
+   reflejarse también en la Entity (`@Column(unique = true, nullable =
+   false)`, `@JoinColumn(nullable = false)`), no solo validarse en el
+   Service. Las dos capas de defensa son necesarias.
+5. **Trazabilidad entre artefactos:** los mismos nombres de entidades,
+   atributos y relaciones tienen que aparecer en el Caso de Uso, el
+   Diagrama de Clases, el DER y el código. Un cambio de nombre en una
+   entidad que no se refleja en los cuatro lugares es inconsistencia.
+
 ## Reglas generales
 
 - **Sin Lombok.** Getters/setters explícitos.
