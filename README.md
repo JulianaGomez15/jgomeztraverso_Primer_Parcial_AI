@@ -30,6 +30,12 @@ src/main/java/org/example/
 Los paquetes están vacíos (con `.gitkeep`) a la espera del dominio que se
 defina en el enunciado del parcial.
 
+## Convenciones
+
+Ver [`CONVENTIONS.md`](./CONVENTIONS.md) para el cheat sheet de patrones
+de la cátedra (Entity, DTO, Repository, Service, Controller,
+DemoDataLoader) con snippets listos para adaptar al dominio del ejercicio.
+
 ## Cómo correr
 
 ```
