@@ -138,3 +138,25 @@ genéricos, este archivo tiene el caso concreto que los originó.
 4. Recién ahí generar el código siguiendo `CONVENTIONS.md`, verificando
    que los nombres coincidan exactamente entre Caso de Uso, Diagrama de
    Clases, DER y código (la cátedra penaliza fuerte la inconsistencia).
+
+## Prompt de arranque para el día del parcial
+
+Pegar esto al inicio de la sesión (en vez de pegar los `.md` enteros):
+
+```
+Repo: JulianaGomez15/jgomeztraverso_Primer_Parcial_AI (rama main). Agregalo
+y leé directo CONVENTIONS.md y SIMULACRO_TURNOGO.md — no los voy a pegar en
+el chat. Te paso el enunciado nuevo del parcial. Quiero que trabajes con el
+mínimo de tokens posible: no repitas el enunciado ni el contenido de esos
+archivos en tus respuestas, no expliques de más, y reusá literalmente el
+formato Mermaid/JSON del DER que ya está en SIMULACRO_TURNOGO.md cambiando
+solo nombres/atributos/reglas. Primero armamos Diagrama de Clases + DER en
+Lucid, yo los reviso, y recién después código.
+```
+
+Por qué funciona:
+- Pide leer del repo en vez de pegar archivos en el chat (lo que más gasta).
+- Prohíbe repetir contenido que ya está en el repo o en el mensaje del usuario.
+- Pide reusar la estructura ya validada en vez de razonar el formato desde cero.
+- Fija el orden (diagramas → revisión → código) para evitar retrabajo si el
+  diagrama necesita ajustes antes de generar código.
